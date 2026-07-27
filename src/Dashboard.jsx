@@ -58,13 +58,16 @@ export default function Dashboard({ onNavigate }) {
   const [bookings, setBookings] = useState([])
   const [topCustomers, setTopCustomers] = useState([])
   const [stats, setStats] = useState({ cash: 0, revenue: 0, netProfit: 0, lowStock: 0, bookingsToday: 0, revenueTrend: null, profitTrend: null })
+  const [loading, setLoading] = useState(true)
+  const [err, setErr] = useState('')
 
   useEffect(() => {
     async function loadData() {
-      const { data: prods } = await supabase
+      const { data: prods, error: prodErr } = await supabase
         .from('products')
         .select('name, category, qty_on_hand, reorder_level')
         .order('name')
+      if (prodErr) throw prodErr
       const productList = prods || []
       setProducts(productList)
 
@@ -132,6 +135,8 @@ export default function Dashboard({ onNavigate }) {
       })
     }
     loadData()
+      .catch((e) => setErr(e.message || 'Could not load the dashboard.'))
+      .finally(() => setLoading(false))
   }, [])
 
   const th = {
@@ -146,6 +151,31 @@ export default function Dashboard({ onNavigate }) {
       fontFamily: 'inherit', fontSize: 13,
     }}>View all →</button>
   )
+
+  if (loading) {
+    return (
+      <div>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, margin: '0 0 1.5rem' }}>Overview</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} style={{ height: 96, background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 16, opacity: 0.6 }} />
+          ))}
+        </div>
+        <p style={{ color: COLORS.muted, marginTop: '1.5rem' }}>Loading your numbers…</p>
+      </div>
+    )
+  }
+  if (err) {
+    return (
+      <div>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, margin: '0 0 1rem' }}>Overview</h2>
+        <div style={{ background: COLORS.card, border: `1px solid ${COLORS.red}`, borderRadius: 16, padding: '1.5rem', color: COLORS.red }}>
+          Couldn't load the dashboard: {err}
+          <div><button onClick={() => window.location.reload()} style={{ marginTop: 12, padding: '8px 16px', borderRadius: 10, cursor: 'pointer', border: 'none', background: COLORS.gold, color: '#0a0a0a', fontWeight: 600, fontFamily: 'inherit' }}>Retry</button></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>

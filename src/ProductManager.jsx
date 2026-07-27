@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
-import { COLORS, rp } from './theme'
+import { COLORS } from './theme'
 
 const CATEGORIES = ['whiskey', 'tequila', 'champagne', 'wine', 'vodka', 'rum', 'gin', 'beer', 'other']
 const blank = { name: '', brand: '', category: '', reorder_level: 1, unit_cost: 0, qty_on_hand: 0 }

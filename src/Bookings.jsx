@@ -113,12 +113,6 @@ export default function Bookings() {
     padding: '10px 18px', borderRadius: 10, cursor: 'pointer', border: 'none',
     background: COLORS.gold, color: '#0a0a0a', fontWeight: 600, fontFamily: 'inherit', fontSize: 14,
   }
-  const th = {
-    textAlign: 'left', padding: '12px 16px', fontSize: 11,
-    letterSpacing: '0.08em', textTransform: 'uppercase', color: COLORS.muted,
-    borderBottom: `1px solid ${COLORS.cardBorder}`,
-  }
-  const td = { padding: '12px 16px', borderBottom: `1px solid ${COLORS.cardBorder}` }
   const smallBtn = {
     padding: '5px 10px', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit', fontSize: 12,
     border: `1px solid ${COLORS.cardBorder}`, background: 'transparent', color: COLORS.muted, marginLeft: 6,

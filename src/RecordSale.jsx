@@ -151,9 +151,9 @@ export default function RecordSale() {
           {cart.map((l) => (
             <div key={l.menu_item_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${COLORS.cardBorder}` }}>
               <span>
-                <button onClick={() => changeQty(l.menu_item_id, -1)} style={qtyBtn}>−</button>
+                <button aria-label={`Remove one ${l.name}`} onClick={() => changeQty(l.menu_item_id, -1)} style={qtyBtn}>−</button>
                 <span style={{ margin: '0 10px', minWidth: 20, display: 'inline-block', textAlign: 'center' }}>{l.qty}</span>
-                <button onClick={() => changeQty(l.menu_item_id, 1)} style={qtyBtn}>+</button>
+                <button aria-label={`Add one ${l.name}`} onClick={() => changeQty(l.menu_item_id, 1)} style={qtyBtn}>+</button>
                 <span style={{ marginLeft: 14 }}>{l.name}</span>
               </span>
               <span style={{ color: COLORS.gold }}>{rp(l.qty * l.price)}</span>
