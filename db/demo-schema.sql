@@ -225,6 +225,17 @@ end $$;
 create trigger trg_protect_attendance before update on public.attendance
 for each row execute function public.protect_attendance();
 
+-- clock-in is server-stamped; a client cannot fabricate hours on insert
+create or replace function public.protect_attendance_insert()
+returns trigger language plpgsql as $$
+begin
+  new.clock_in := now();
+  new.clock_out := null;
+  return new;
+end $$;
+create trigger trg_protect_attendance_insert before insert on public.attendance
+for each row execute function public.protect_attendance_insert();
+
 -- 10 — keep in sync with SEAT_LIMIT in src/config.js
 create or replace function public.check_booking_capacity()
 returns trigger language plpgsql security definer set search_path = public as $$
