@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
+import { humanError } from './errors'
 import { COLORS } from './theme'
 import { SEAT_LIMIT, OPEN_HOUR, CLOSE_HOUR } from './config'
 
@@ -93,7 +94,7 @@ export default function Bookings() {
       customer_name: name.trim(), phone: phone || null, party_size: p,
       starts_at: reqStart, duration_min: Number(duration), note: note || null,
     })
-    if (error) { setMsg('Error: ' + error.message); setMsgType('error'); setSaving(false); return }
+    if (error) { setMsg(humanError(error)); setMsgType('error'); setSaving(false); return }
     setName(''); setPhone(''); setParty(2); setNote('')
     setMsg('✓ Booking saved.'); setMsgType('ok')
     setSaving(false); load()
@@ -129,9 +130,9 @@ export default function Bookings() {
         <input value={phone}
           onChange={(e) => { setPhone(e.target.value); setKnown(false) }}
           onBlur={(e) => lookupPhone(e.target.value)}
-          placeholder="Phone — type first to check the system" style={field} />
+          maxLength={25} placeholder="Phone — type first to check the system" style={field} />
         {known && <p style={{ marginTop: -6, marginBottom: 12, color: COLORS.green, fontSize: 12 }}>Returning customer — name filled in. ✓</p>}
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Customer name" style={field} />
+        <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} placeholder="Customer name" style={field} />
 
         <div style={{ display: 'flex', gap: 12 }}>
           <label style={{ flex: 1, color: COLORS.muted, fontSize: 13 }}>Date
@@ -154,7 +155,7 @@ export default function Bookings() {
           </label>
         </div>
 
-        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" style={field} />
+        <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} placeholder="Note (optional)" style={field} />
 
         {/* live availability */}
         {reqStart && (

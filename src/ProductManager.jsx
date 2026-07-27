@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
+import { humanError } from './errors'
 import { COLORS } from './theme'
 
 const CATEGORIES = ['whiskey', 'tequila', 'champagne', 'wine', 'vodka', 'rum', 'gin', 'beer', 'other']
@@ -38,7 +39,7 @@ export default function ProductManager() {
         name: form.name.trim(), brand: form.brand || null,
         category: form.category, reorder_level: Number(form.reorder_level),
       }).eq('id', editingId)
-      if (error) { setMsg('Error: ' + error.message); setMsgType('error'); return }
+      if (error) { setMsg(humanError(error)); setMsgType('error'); return }
       setMsg('✓ Bottle updated.'); setMsgType('ok')
     } else {
       // new bottle starts empty — stock & cost come from Restock
@@ -46,7 +47,7 @@ export default function ProductManager() {
         name: form.name.trim(), brand: form.brand || null, category: form.category,
         reorder_level: Number(form.reorder_level),
       })
-      if (error) { setMsg('Error: ' + error.message); setMsgType('error'); return }
+      if (error) { setMsg(humanError(error)); setMsgType('error'); return }
       setMsg('✓ Bottle added. Add stock to it in Restock.'); setMsgType('ok')
     }
     startNew(); load()

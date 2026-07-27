@@ -83,8 +83,8 @@ export default function Staff() {
         {/* add form */}
         <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 14, padding: '1.2rem', width: 320 }}>
           <div style={{ fontWeight: 600, marginBottom: 14 }}>Add a staff member</div>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" style={field} />
-          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (their login)" style={field} />
+          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} placeholder="Name" style={field} />
+          <input value={email} onChange={(e) => setEmail(e.target.value)} maxLength={120} placeholder="Email (their login)" style={field} />
           <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (6+ characters)" style={field} />
           <button onClick={addStaff} disabled={saving} style={{ ...btnGold, opacity: saving ? 0.5 : 1 }}>
             {saving ? 'Adding…' : 'Add staff'}

@@ -134,6 +134,25 @@ create index on public.sale_items (sale_id);
 create index on public.bookings (starts_at);
 create index on public.attendance (clock_in);
 
+-- ── input length caps (defense in depth vs oversized text) ────
+alter table public.sales
+  add constraint sales_custname_len  check (customer_name  is null or char_length(customer_name)  <= 120),
+  add constraint sales_custphone_len check (customer_phone is null or char_length(customer_phone) <= 30),
+  add constraint sales_note_len      check (note is null or char_length(note) <= 300);
+alter table public.bookings
+  add constraint book_name_len  check (char_length(customer_name) <= 120),
+  add constraint book_phone_len check (phone is null or char_length(phone) <= 30),
+  add constraint book_note_len  check (note is null or char_length(note) <= 300);
+alter table public.expenses          add constraint exp_note_len  check (note is null or char_length(note) <= 300);
+alter table public.bottle_depletions add constraint depl_note_len check (note is null or char_length(note) <= 300);
+alter table public.profiles
+  add constraint prof_name_len  check (char_length(name) <= 120),
+  add constraint prof_email_len check (email is null or char_length(email) <= 200);
+alter table public.products
+  add constraint prod_name_len  check (char_length(name) <= 120),
+  add constraint prod_brand_len check (brand is null or char_length(brand) <= 120);
+alter table public.menu_items add constraint menu_name_len check (char_length(name) <= 120);
+
 -- ── helpers ───────────────────────────────────────────────────
 
 create or replace function public.is_owner()

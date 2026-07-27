@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
+import { humanError } from './errors'
 import { COLORS, rp } from './theme'
 
 export default function Restock() {
@@ -43,7 +44,7 @@ export default function Restock() {
       supplier: supplier || null, staff_id: user?.id,
     }))
     const { error } = await supabase.from('stock_purchases').insert(rows)
-    if (error) { setMsg('Error: ' + error.message); setMsgType('error'); setSaving(false); return }
+    if (error) { setMsg(humanError(error)); setMsgType('error'); setSaving(false); return }
     setCart([]); setSupplier('')
     setMsg('✓ Stock added. Switch to Dashboard to see counts go up.'); setMsgType('ok')
     setSaving(false); loadProducts()

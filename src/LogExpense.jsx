@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
+import { humanError } from './errors'
 import { COLORS, rp } from './theme'
 
 const CATEGORIES = ['rent', 'wages', 'utilities', 'supplies', 'maintenance', 'other']
@@ -33,7 +34,7 @@ export default function LogExpense() {
     const { error } = await supabase.from('expenses').insert({
       category, amount: a, note: note || null,
     })
-    if (error) { setMsg('Error: ' + error.message); setMsgType('error'); setSaving(false); return }
+    if (error) { setMsg(humanError(error)); setMsgType('error'); setSaving(false); return }
     setCategory(''); setAmount(''); setNote('')
     setMsg('✓ Expense logged. It lowers your cash on hand and this week\'s profit.'); setMsgType('ok')
     setSaving(false); loadExpenses()
@@ -75,7 +76,7 @@ export default function LogExpense() {
           placeholder="Amount (Rp)" style={field} />
 
         <input value={note} onChange={(e) => setNote(e.target.value)}
-          placeholder="Note (optional)" style={field} />
+          maxLength={200} placeholder="Note (optional)" style={field} />
 
         <button onClick={save} disabled={saving} style={{ ...btnGold, opacity: saving ? 0.5 : 1 }}>
           {saving ? 'Saving…' : 'Save expense'}

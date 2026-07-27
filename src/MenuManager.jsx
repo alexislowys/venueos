@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
+import { humanError } from './errors'
 import { COLORS, rp } from './theme'
 
 const CATEGORIES = ['cocktail', 'shot', 'glass', 'bottle']
@@ -54,7 +55,7 @@ export default function MenuManager() {
       ? supabase.from('menu_items').update(row).eq('id', editingId)
       : supabase.from('menu_items').insert(row)
     const { error } = await q
-    if (error) { setMsg('Error: ' + error.message); setMsgType('error'); return }
+    if (error) { setMsg(humanError(error)); setMsgType('error'); return }
     setMsg(editingId ? '✓ Drink updated.' : '✓ Drink added.'); setMsgType('ok')
     startNew(); load()
   }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
+import { humanError } from './errors'
 import { COLORS } from './theme'
 import { BUSINESS_NAME } from './config'
 
@@ -16,14 +17,14 @@ export default function Login() {
   async function signIn() {
     setLoading(true); setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError(error.message)
+    if (error) setError(humanError(error))
     setLoading(false)
   }
 
   async function signInDemo() {
     setLoading(true); setError('')
     const { error } = await supabase.auth.signInWithPassword({ email: DEMO_EMAIL, password: DEMO_PASSWORD })
-    if (error) setError(error.message)
+    if (error) setError(humanError(error))
     setLoading(false)
   }
 

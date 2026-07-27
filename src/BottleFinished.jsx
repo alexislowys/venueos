@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
+import { humanError } from './errors'
 import { COLORS, rp } from './theme'
 
 const fmtDate = (s) => new Date(s).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
@@ -52,7 +53,7 @@ export default function BottleFinished() {
     const { error } = await supabase.from('bottle_depletions').insert({
       product_id: p.id, qty: q, reason, note: note || null,
     })
-    if (error) { setMsg('Error: ' + error.message); setMsgType('error'); setSaving(false); return }
+    if (error) { setMsg(humanError(error)); setMsgType('error'); setSaving(false); return }
     setProductId(''); setQty(1); setReason('used'); setNote('')
     setMsg(`✓ Logged. ${p.name} stock dropped by ${q}.`); setMsgType('ok')
     setSaving(false); loadProducts(); loadRecent()

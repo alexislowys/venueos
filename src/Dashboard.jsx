@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
+import { humanError } from './errors'
 import { COLORS, rp } from './theme'
 import RevenueChart from './RevenueChart'
 import Icon from './icons'
@@ -135,7 +136,7 @@ export default function Dashboard({ onNavigate }) {
       })
     }
     loadData()
-      .catch((e) => setErr(e.message || 'Could not load the dashboard.'))
+      .catch((e) => setErr(humanError(e, 'Could not load the dashboard.')))
       .finally(() => setLoading(false))
   }, [])
 

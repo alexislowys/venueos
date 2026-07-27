@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
+import { humanError } from './errors'
 import { COLORS } from './theme'
 
 const iso = (s) => new Date(s).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -34,7 +35,7 @@ export default function Reports() {
       const n = await fn()
       setMsg(n === 0 ? 'No data in that date range — downloaded an empty sheet.' : `Downloaded ${n} rows.`)
     } catch (e) {
-      setMsg('Error: ' + e.message)
+      setMsg(humanError(e))
     }
     setBusy('')
   }

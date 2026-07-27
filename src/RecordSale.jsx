@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
+import { humanError } from './errors'
 import { COLORS, rp } from './theme'
 import { SERVICE_PCT, TAX_PCT } from './config'
 import { computeBill, cartSubtotal } from './billing'
@@ -28,7 +29,7 @@ export default function RecordSale() {
       .select('id, name, category, subcategory, price')
       .eq('is_active', true)
       .order('name')
-    if (error) { setMsg('Load error: ' + error.message); setMsgType('error'); return }
+    if (error) { setMsg(humanError(error, 'Could not load. Try again.')); setMsgType('error'); return }
     setMenu(data || [])
   }
   useEffect(() => { loadMenu() }, [])
@@ -75,10 +76,10 @@ export default function RecordSale() {
         change_due: method === 'cash' ? change : null,
         service_amount: service, tax_amount: tax, total_amount: grandTotal,
       }).select().single()
-    if (error) { setMsg('Error: ' + error.message); setMsgType('error'); setSaving(false); return }
+    if (error) { setMsg(humanError(error)); setMsgType('error'); setSaving(false); return }
     const rows = cart.map((l) => ({ sale_id: sale.id, menu_item_id: l.menu_item_id, qty: l.qty }))
     const { error: e2 } = await supabase.from('sale_items').insert(rows)
-    if (e2) { setMsg('Error: ' + e2.message); setMsgType('error'); setSaving(false); return }
+    if (e2) { setMsg(humanError(e2)); setMsgType('error'); setSaving(false); return }
     setCart([]); setCat(null); setSub(null)
     setMethod('cash'); setCashReceived(''); setCustName(''); setCustPhone('')
     setMsg(`✓ Sale saved. ${method === 'cash' ? `Change: ${rp(change)}.` : `Paid by ${method}.`} Receipt is in the Receipts page.`)
@@ -201,9 +202,9 @@ export default function RecordSale() {
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <input value={custName} onChange={(e) => setCustName(e.target.value)}
-              placeholder="Customer name (optional)" style={{ ...field, flex: 1, minWidth: 180 }} />
+              maxLength={80} placeholder="Customer name (optional)" style={{ ...field, flex: 1, minWidth: 180 }} />
             <input value={custPhone} onChange={(e) => setCustPhone(e.target.value)}
-              placeholder="Customer phone (optional)" style={{ ...field, flex: 1, minWidth: 180 }} />
+              maxLength={25} placeholder="Customer phone (optional)" style={{ ...field, flex: 1, minWidth: 180 }} />
           </div>
         </div>
       )}
