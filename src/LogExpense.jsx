@@ -91,7 +91,7 @@ export default function LogExpense() {
           <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 20 }}>Recent expenses</span>
           <span style={{ color: COLORS.muted, fontSize: 13 }}>Total shown: <span style={{ color: COLORS.gold }}>{rp(total)}</span></span>
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table style={{ width: '100%', minWidth: 460, borderCollapse: 'collapse' }}>
           <thead>
             <tr><th style={th}>Date</th><th style={th}>Category</th><th style={th}>Note</th><th style={{ ...th, textAlign: 'right' }}>Amount</th></tr>
           </thead>
@@ -108,7 +108,7 @@ export default function LogExpense() {
               <tr><td style={{ ...td, color: COLORS.muted }} colSpan={4}>No expenses logged yet.</td></tr>
             )}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   )

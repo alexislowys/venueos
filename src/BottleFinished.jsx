@@ -109,7 +109,7 @@ export default function BottleFinished() {
       {/* ---- History ---- */}
       <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 16, overflow: 'hidden' }}>
         <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, padding: '1.1rem 1.4rem', borderBottom: `1px solid ${COLORS.cardBorder}` }}>Recently finished</div>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table style={{ width: '100%', minWidth: 460, borderCollapse: 'collapse' }}>
           <thead>
             <tr><th style={th}>When</th><th style={th}>Bottle</th><th style={th}>Reason</th><th style={{ ...th, textAlign: 'right' }}>Qty</th><th style={{ ...th, textAlign: 'right' }}>Cost each</th></tr>
           </thead>
@@ -127,7 +127,7 @@ export default function BottleFinished() {
               <tr><td style={{ ...td, color: COLORS.muted }} colSpan={5}>Nothing logged yet.</td></tr>
             )}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   )

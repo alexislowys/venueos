@@ -95,7 +95,7 @@ export default function ProductManager() {
 
       {/* list */}
       <div style={{ flex: 1, minWidth: 340, background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 16, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table style={{ width: '100%', minWidth: 460, borderCollapse: 'collapse' }}>
           <thead>
             <tr><th style={th}>Name</th><th style={th}>Category</th><th style={th}>Stock</th><th style={th}></th></tr>
           </thead>
@@ -112,7 +112,7 @@ export default function ProductManager() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   )

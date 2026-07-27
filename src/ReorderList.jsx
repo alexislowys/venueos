@@ -24,7 +24,7 @@ export default function ReorderList() {
     <div style={{ maxWidth: 720 }}>
       <p style={{ color: COLORS.muted, marginTop: 0, marginBottom: '1.25rem' }}>Bottles at or below their low-stock level — your shopping list. Restock these, then they drop off.</p>
       <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 16, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table style={{ width: '100%', minWidth: 460, borderCollapse: 'collapse' }}>
           <thead>
             <tr><th style={th}>Bottle</th><th style={th}>Category</th><th style={{ ...th, textAlign: 'right' }}>In stock</th><th style={{ ...th, textAlign: 'right' }}>Alert at</th></tr>
           </thead>
@@ -41,7 +41,7 @@ export default function ReorderList() {
               <tr><td style={{ ...td, color: COLORS.green }} colSpan={4}>All stocked — nothing to reorder. ✓</td></tr>
             )}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   )

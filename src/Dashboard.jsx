@@ -197,7 +197,7 @@ export default function Dashboard({ onNavigate }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
         {/* Upcoming bookings */}
         <Panel title="Upcoming bookings" action={viewAll('bookings')}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table style={{ width: '100%', minWidth: 460, borderCollapse: 'collapse' }}>
             <thead>
               <tr><th style={th}>When</th><th style={th}>Customer</th><th style={{ ...th, textAlign: 'right' }}>Party</th></tr>
             </thead>
@@ -213,12 +213,12 @@ export default function Dashboard({ onNavigate }) {
                 <tr><td style={{ ...td, color: COLORS.muted }} colSpan={3}>No upcoming bookings.</td></tr>
               )}
             </tbody>
-          </table>
+          </table></div>
         </Panel>
 
         {/* Inventory */}
         <Panel title="Inventory" action={viewAll('manage')}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table style={{ width: '100%', minWidth: 460, borderCollapse: 'collapse' }}>
             <thead>
               <tr><th style={th}>Name</th><th style={th}>Category</th><th style={{ ...th, textAlign: 'right' }}>In stock</th></tr>
             </thead>
@@ -234,12 +234,12 @@ export default function Dashboard({ onNavigate }) {
                 )
               })}
             </tbody>
-          </table>
+          </table></div>
         </Panel>
 
         {/* Top customers */}
         <Panel title="Top customers" action={<span style={{ color: COLORS.muted, fontSize: 12 }}>by visits</span>}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table style={{ width: '100%', minWidth: 460, borderCollapse: 'collapse' }}>
             <thead>
               <tr><th style={th}>Customer</th><th style={th}>Phone</th><th style={{ ...th, textAlign: 'right' }}>Visits</th></tr>
             </thead>
@@ -255,7 +255,7 @@ export default function Dashboard({ onNavigate }) {
                 <tr><td style={{ ...td, color: COLORS.muted }} colSpan={3}>No customers with a phone number yet.</td></tr>
               )}
             </tbody>
-          </table>
+          </table></div>
         </Panel>
       </div>
     </div>

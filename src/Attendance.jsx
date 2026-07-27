@@ -76,7 +76,7 @@ export default function Attendance() {
         </div>
       ) : (
         <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 16, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table style={{ width: '100%', minWidth: 460, borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 {searching && <th style={th}>Date</th>}
@@ -100,7 +100,7 @@ export default function Attendance() {
                 </td></tr>
               )}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
     </div>
