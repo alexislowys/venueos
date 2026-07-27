@@ -30,11 +30,24 @@ const NAV = [
 // (receipts is safe: database only shows staff their own sales)
 const STAFF_PAGES = new Set(['sale', 'receipts', 'stock', 'bookings', 'expense'])
 
+function useIsMobile() {
+  const [m, setM] = useState(typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)')
+    const h = (e) => setM(e.matches)
+    mq.addEventListener('change', h)
+    return () => mq.removeEventListener('change', h)
+  }, [])
+  return m
+}
+
 export default function App() {
   const [session, setSession] = useState(null)
   const [checking, setChecking] = useState(true)
   const [profile, setProfile] = useState(null)
   const [page, setPage] = useState('dashboard')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -63,7 +76,6 @@ export default function App() {
     const { data } = await supabase.from('attendance')
       .select('id, clock_in').eq('staff_id', userId).is('clock_out', null)
     const open = data || []
-    // shifts left open >16h (tab closed without sign-out): close at 0h so they stand out
     const cutoff = Date.now() - 16 * 3600000
     const stale = open.filter((s) => new Date(s.clock_in).getTime() < cutoff)
     for (const s of stale) {
@@ -101,46 +113,88 @@ export default function App() {
   }
 
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const goto = (key) => { setPage(key); setMenuOpen(false) }
 
+  // sidebar contents, shared by desktop rail and mobile drawer
+  const sidebarInner = (
+    <>
+      <div style={{ padding: '0 1.4rem 1.3rem', borderBottom: `1px solid ${COLORS.cardBorder}`, marginBottom: '1rem' }}>
+        <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, color: COLORS.gold, fontWeight: 700, lineHeight: 1.1 }}>{BUSINESS_NAME}</div>
+        <div style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: COLORS.muted, marginTop: 4 }}>{isOwner ? 'Owner' : 'Staff'}</div>
+      </div>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: 3, padding: '0 0.7rem', flex: 1 }}>
+        {allowedNav.map((n) => {
+          const active = visiblePage === n.key
+          return (
+            <button key={n.key} onClick={() => goto(n.key)} style={{
+              display: 'flex', alignItems: 'center', gap: 11, textAlign: 'left',
+              padding: '11px 13px', borderRadius: 10, cursor: 'pointer', border: 'none',
+              background: active ? COLORS.gold : 'transparent',
+              color: active ? '#0a0a0a' : COLORS.muted,
+              fontWeight: active ? 600 : 500, fontFamily: 'inherit', fontSize: 14,
+            }}>
+              <Icon name={n.key} />{n.label}
+            </button>
+          )
+        })}
+      </nav>
+      <div style={{ padding: '0 0.7rem' }}>
+        <button onClick={signOutNow} style={{
+          width: '100%', display: 'flex', alignItems: 'center', gap: 11,
+          padding: '11px 13px', borderRadius: 10, cursor: 'pointer',
+          border: `1px solid ${COLORS.cardBorder}`, background: 'transparent',
+          color: COLORS.muted, fontFamily: 'inherit', fontSize: 14,
+        }}>
+          <Icon name="signout" />Sign out
+        </button>
+      </div>
+    </>
+  )
+
+  // ---------- MOBILE ----------
+  if (isMobile) {
+    return (
+      <div style={{ minHeight: '100vh', background: COLORS.bg, color: COLORS.text, fontFamily: "'Inter', sans-serif" }}>
+        {/* top bar */}
+        <header style={{
+          position: 'sticky', top: 0, zIndex: 30, display: 'flex', alignItems: 'center', gap: 12,
+          padding: '0.9rem 1rem', background: COLORS.card, borderBottom: `1px solid ${COLORS.cardBorder}`,
+        }}>
+          <button aria-label="Open menu" onClick={() => setMenuOpen(true)} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40,
+            borderRadius: 10, border: `1px solid ${COLORS.cardBorder}`, background: 'transparent', color: COLORS.text, cursor: 'pointer',
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, color: COLORS.gold, fontWeight: 700 }}>{BUSINESS_NAME}</span>
+        </header>
+
+        {/* drawer + backdrop */}
+        {menuOpen && (
+          <div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(0,0,0,0.55)' }}>
+            <aside onClick={(e) => e.stopPropagation()} style={{
+              width: 250, maxWidth: '82vw', height: '100vh', background: COLORS.card,
+              borderRight: `1px solid ${COLORS.cardBorder}`, display: 'flex', flexDirection: 'column', padding: '1.4rem 0',
+            }}>
+              {sidebarInner}
+            </aside>
+          </div>
+        )}
+
+        <div style={{ padding: '1.25rem 1rem' }}>{pages[visiblePage]}</div>
+      </div>
+    )
+  }
+
+  // ---------- DESKTOP ----------
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: COLORS.bg, color: COLORS.text, fontFamily: "'Inter', sans-serif" }}>
-      {/* ---- Sidebar ---- */}
       <aside style={{ width: 232, flexShrink: 0, background: COLORS.card, borderRight: `1px solid ${COLORS.cardBorder}`, display: 'flex', flexDirection: 'column', padding: '1.4rem 0', position: 'sticky', top: 0, height: '100vh' }}>
-        <div style={{ padding: '0 1.4rem 1.3rem', borderBottom: `1px solid ${COLORS.cardBorder}`, marginBottom: '1rem' }}>
-          <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, color: COLORS.gold, fontWeight: 700, lineHeight: 1.1 }}>{BUSINESS_NAME}</div>
-          <div style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: COLORS.muted, marginTop: 4 }}>{isOwner ? 'Owner' : 'Staff'}</div>
-        </div>
-
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 3, padding: '0 0.7rem', flex: 1 }}>
-          {allowedNav.map((n) => {
-            const active = visiblePage === n.key
-            return (
-              <button key={n.key} onClick={() => setPage(n.key)} style={{
-                display: 'flex', alignItems: 'center', gap: 11, textAlign: 'left',
-                padding: '9px 13px', borderRadius: 10, cursor: 'pointer', border: 'none',
-                background: active ? COLORS.gold : 'transparent',
-                color: active ? '#0a0a0a' : COLORS.muted,
-                fontWeight: active ? 600 : 500, fontFamily: 'inherit', fontSize: 13.5,
-              }}>
-                <Icon name={n.key} />{n.label}
-              </button>
-            )
-          })}
-        </nav>
-
-        <div style={{ padding: '0 0.7rem' }}>
-          <button onClick={signOutNow} style={{
-            width: '100%', display: 'flex', alignItems: 'center', gap: 11,
-            padding: '9px 13px', borderRadius: 10, cursor: 'pointer',
-            border: `1px solid ${COLORS.cardBorder}`, background: 'transparent',
-            color: COLORS.muted, fontFamily: 'inherit', fontSize: 13.5,
-          }}>
-            <Icon name="signout" />Sign out
-          </button>
-        </div>
+        {sidebarInner}
       </aside>
 
-      {/* ---- Main ---- */}
       <main style={{ flex: 1, minWidth: 0 }}>
         <header style={{ padding: '1.5rem 2.4rem', borderBottom: `1px solid ${COLORS.cardBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <div>
