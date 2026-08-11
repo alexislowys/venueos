@@ -198,8 +198,8 @@ export default function App() {
       <main style={{ flex: 1, minWidth: 0 }}>
         <header style={{ padding: '1.5rem 2.4rem', borderBottom: `1px solid ${COLORS.cardBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <div>
-            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22 }}>Welcome back{profile.name ? `, ${profile.name}` : ''} 👋</div>
-            <div style={{ color: COLORS.muted, fontSize: 13, marginTop: 2 }}>Here's what's happening at your bar today.</div>
+            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22 }}>Welcome back{profile.name ? `, ${profile.name}` : ''}</div>
+            <div style={{ color: COLORS.muted, fontSize: 13, marginTop: 2 }}>Here's your overview for today.</div>
           </div>
           <div style={{ color: COLORS.muted, fontSize: 13 }}>{today}</div>
         </header>
