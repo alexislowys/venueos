@@ -1,0 +1,24 @@
+name: Keep demo DB awake
+
+# Free-tier Supabase pauses a project after ~7 days idle. This pings the
+# demo database every 4 days so the CV demo is always live for recruiters.
+# The key below is the public anon/publishable key (safe to expose).
+
+on:
+  schedule:
+    - cron: '0 6 */4 * *'   # every 4 days at 06:00 UTC
+  workflow_dispatch:         # allow manual run from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping demo Supabase REST
+        run: |
+          KEY="sb_publishable_suky7hxJRAzmaIrH0N1Wsw_Cq_3jiY7"
+          CODE=$(curl -sS -o /dev/null -w "%{http_code}" \
+            "https://viwpwyopgmlaoggpwxrh.supabase.co/rest/v1/menu_items?select=id&limit=1" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "Supabase responded: $CODE"
+          # 2xx/4xx both prove the DB is awake; only a network failure fails the job
+          [ "$CODE" != "000" ] || (echo "Demo DB unreachable (paused?)" && exit 1)
