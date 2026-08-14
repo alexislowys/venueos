@@ -246,7 +246,7 @@ export default function Dashboard({ onNavigate }) {
             <tbody>
               {topCustomers.map((c) => (
                 <tr key={c.phone}>
-                  <td style={td}>{c.name}{c.visits > 1 ? <span style={{ color: COLORS.gold, fontSize: 11 }}> · regular</span> : null}</td>
+                  <td style={td}>{c.name}{c.visits >= 3 ? <span style={{ color: COLORS.gold, fontSize: 11 }}> · regular</span> : null}</td>
                   <td style={{ ...td, color: COLORS.muted }}>{c.phone}</td>
                   <td style={{ ...td, textAlign: 'right' }}>{c.visits}</td>
                 </tr>
