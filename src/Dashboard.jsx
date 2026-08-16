@@ -111,10 +111,18 @@ export default function Dashboard({ onNavigate }) {
         .order('starts_at', { ascending: false })
       const byPhone = {}
       for (const b of allBk || []) {
-        if (!byPhone[b.phone]) byPhone[b.phone] = { phone: b.phone, name: b.customer_name, visits: 0 }
-        byPhone[b.phone].visits++
+        if (!byPhone[b.phone]) byPhone[b.phone] = { phone: b.phone, name: b.customer_name, dates: [] }
+        byPhone[b.phone].dates.push(new Date(b.starts_at).getTime())
       }
-      const top = Object.values(byPhone).sort((a, b) => b.visits - a.visits).slice(0, 6)
+      // "regular" = routine visitor: 3+ visits, ~every 3 weeks or tighter, seen in the last 45 days
+      const DAY = 86400000, nowMs = Date.now()
+      const top = Object.values(byPhone).map((c) => {
+        const ds = c.dates.sort((a, b) => a - b)
+        const visits = ds.length
+        const avgGap = visits > 1 ? (ds[visits - 1] - ds[0]) / (visits - 1) : Infinity
+        const sinceLast = nowMs - ds[visits - 1]
+        return { phone: c.phone, name: c.name, visits, regular: visits >= 3 && avgGap <= 21 * DAY && sinceLast <= 45 * DAY }
+      }).sort((a, b) => b.visits - a.visits).slice(0, 6)
       setTopCustomers(top)
 
       const netProfit = revenue - cogs - opex
@@ -246,7 +254,7 @@ export default function Dashboard({ onNavigate }) {
             <tbody>
               {topCustomers.map((c) => (
                 <tr key={c.phone}>
-                  <td style={td}>{c.name}{c.visits >= 3 ? <span style={{ color: COLORS.gold, fontSize: 11 }}> · regular</span> : null}</td>
+                  <td style={td}>{c.name}{c.regular ? <span style={{ color: COLORS.gold, fontSize: 11 }}> · regular</span> : null}</td>
                   <td style={{ ...td, color: COLORS.muted }}>{c.phone}</td>
                   <td style={{ ...td, textAlign: 'right' }}>{c.visits}</td>
                 </tr>
