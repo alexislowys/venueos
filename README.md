@@ -12,6 +12,7 @@
 - Tap-through menu (category → liquor type → item), cart with per-line quantities
 - Bill math: service charge + PB1 tax (Indonesian convention), computed server-side to prevent tampering
 - Cash / card / QRIS payment, cash-received input with change calculation
+- Open tabs: start a tab for a table or guest, add over service, pay once at the end
 - Receipts with full line detail, searchable by day, customer name, or staff name
 
 **Inventory (bar-native)**
@@ -74,4 +75,4 @@ Database: run [`db/demo-schema.sql`](db/demo-schema.sql) on a fresh Supabase pro
 
 - Built solo as a learning project with AI-assisted development; every architectural decision, security policy and iteration reviewed and understood by me
 - History starts at "already working" because the project outgrew its first throwaway repo — the [`db/`](db) folder documents the schema's full evolution
-- Known gaps I'd tackle next: open tabs (order-now-pay-later), void/refund with audit trail, stocktake reconciliation, offline queue
+- Known gaps I'd tackle next: kitchen display (KDS), recipe/ingredient inventory + food-cost %, void/refund with audit trail, offline queue

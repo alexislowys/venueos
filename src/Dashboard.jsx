@@ -3,6 +3,7 @@ import { supabase } from './supabaseClient'
 import { humanError } from './errors'
 import { COLORS, rp } from './theme'
 import RevenueChart from './RevenueChart'
+import { isRegular } from './customers'
 import Icon from './icons'
 
 // % change vs previous week; null when there's nothing to compare
@@ -114,15 +115,9 @@ export default function Dashboard({ onNavigate }) {
         if (!byPhone[b.phone]) byPhone[b.phone] = { phone: b.phone, name: b.customer_name, dates: [] }
         byPhone[b.phone].dates.push(new Date(b.starts_at).getTime())
       }
-      // "regular" = routine visitor: 3+ visits, ~every 3 weeks or tighter, seen in the last 45 days
-      const DAY = 86400000, nowMs = Date.now()
-      const top = Object.values(byPhone).map((c) => {
-        const ds = c.dates.sort((a, b) => a - b)
-        const visits = ds.length
-        const avgGap = visits > 1 ? (ds[visits - 1] - ds[0]) / (visits - 1) : Infinity
-        const sinceLast = nowMs - ds[visits - 1]
-        return { phone: c.phone, name: c.name, visits, regular: visits >= 3 && avgGap <= 21 * DAY && sinceLast <= 45 * DAY }
-      }).sort((a, b) => b.visits - a.visits).slice(0, 6)
+      const top = Object.values(byPhone).map((c) => (
+        { phone: c.phone, name: c.name, visits: c.dates.length, regular: isRegular(c.dates) }
+      )).sort((a, b) => b.visits - a.visits).slice(0, 6)
       setTopCustomers(top)
 
       const netProfit = revenue - cogs - opex
