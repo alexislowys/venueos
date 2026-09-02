@@ -94,12 +94,12 @@ export default function MenuManager() {
 
         {form.category === 'bottle' && (
           <>
-            <p style={{ color: COLORS.muted, fontSize: 12, marginTop: 0 }}>Sold whole — link it to a bottle in inventory so selling it drops stock.</p>
+            <p style={{ color: COLORS.muted, fontSize: 12, marginTop: 0 }}>Sold whole — link it to an item in inventory so selling it drops stock.</p>
             <select value={form.product_id} onChange={(e) => pickProduct(e.target.value)} style={field}>
-              <option value="">Which bottle in inventory?…</option>
+              <option value="">Which item in inventory?…</option>
               {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
-            <input value={form.subcategory} onChange={(e) => set('subcategory', e.target.value)} placeholder="Liquor type (whiskey, tequila…)" style={field} />
+            <input value={form.subcategory} onChange={(e) => set('subcategory', e.target.value)} placeholder="Type — optional (e.g. wine, spirits)" style={field} />
           </>
         )}
 

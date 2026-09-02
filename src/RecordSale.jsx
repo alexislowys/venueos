@@ -60,7 +60,7 @@ export default function RecordSale() {
   const change = method === 'cash' ? received - grandTotal : 0
 
   async function saveSale() {
-    if (cart.length === 0) { setMsg('Add at least one drink.'); setMsgType('error'); return }
+    if (cart.length === 0) { setMsg('Add at least one item.'); setMsgType('error'); return }
     if (method === 'cash' && received < grandTotal) {
       setMsg(`Cash received (${rp(received)}) is less than the total (${rp(grandTotal)}).`); setMsgType('error'); return
     }

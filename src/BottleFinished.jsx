@@ -6,7 +6,7 @@ import { COLORS, rp } from './theme'
 const fmtDate = (s) => new Date(s).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 
 const REASONS = [
-  { value: 'used', label: 'Used in drinks' },
+  { value: 'used', label: 'Used' },
   { value: 'spillage', label: 'Spillage' },
   { value: 'breakage', label: 'Breakage' },
   { value: 'expired', label: 'Expired / off' },
@@ -46,7 +46,7 @@ export default function BottleFinished() {
 
   async function save() {
     const p = products.find((x) => x.id === productId)
-    if (!p) { setMsg('Pick a bottle first.'); setMsgType('error'); return }
+    if (!p) { setMsg('Pick an item first.'); setMsgType('error'); return }
     const q = Number(qty)
     if (!q || q < 1) { setMsg('Quantity must be 1 or more.'); setMsgType('error'); return }
     setSaving(true)
@@ -77,20 +77,20 @@ export default function BottleFinished() {
 
   return (
     <div style={{ maxWidth: 720 }}>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, margin: '0 0 0.3rem' }}>Bottle Finished</h2>
-      <p style={{ color: COLORS.muted, marginTop: 0, marginBottom: '1.5rem' }}>When a bottle runs dry (from cocktails, shots, spillage), log it here to drop stock.</p>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, margin: '0 0 0.3rem' }}>Stock Used</h2>
+      <p style={{ color: COLORS.muted, marginTop: 0, marginBottom: '1.5rem' }}>When stock is used up or wasted, log it here so counts stay accurate.</p>
 
       {/* ---- Log form ---- */}
       <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 14, padding: '1.2rem', maxWidth: 460, marginBottom: '2rem' }}>
         <select value={productId} onChange={(e) => setProductId(e.target.value)} style={field}>
-          <option value="">Select a bottle…</option>
+          <option value="">Select an item…</option>
           {products.map((p) => (
             <option key={p.id} value={p.id}>{p.name} — {p.qty_on_hand} in stock</option>
           ))}
         </select>
 
         <input type="number" min="1" value={qty} onChange={(e) => setQty(e.target.value)}
-          placeholder="How many bottles finished" style={field} />
+          placeholder="How many used" style={field} />
 
         <select value={reason} onChange={(e) => setReason(e.target.value)} style={field}>
           {REASONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -100,7 +100,7 @@ export default function BottleFinished() {
           placeholder="Note (optional)" style={field} />
 
         <button onClick={save} disabled={saving} style={{ ...btnGold, opacity: saving ? 0.5 : 1 }}>
-          {saving ? 'Saving…' : 'Mark finished'}
+          {saving ? 'Saving…' : 'Mark used'}
         </button>
 
         {msg && <p style={{ marginTop: '1rem', marginBottom: 0, color: msgType === 'error' ? COLORS.red : COLORS.green }}>{msg}</p>}
@@ -108,10 +108,10 @@ export default function BottleFinished() {
 
       {/* ---- History ---- */}
       <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 16, overflow: 'hidden' }}>
-        <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, padding: '1.1rem 1.4rem', borderBottom: `1px solid ${COLORS.cardBorder}` }}>Recently finished</div>
+        <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, padding: '1.1rem 1.4rem', borderBottom: `1px solid ${COLORS.cardBorder}` }}>Recently used</div>
         <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table style={{ width: '100%', minWidth: 460, borderCollapse: 'collapse' }}>
           <thead>
-            <tr><th style={th}>When</th><th style={th}>Bottle</th><th style={th}>Reason</th><th style={{ ...th, textAlign: 'right' }}>Qty</th><th style={{ ...th, textAlign: 'right' }}>Cost each</th></tr>
+            <tr><th style={th}>When</th><th style={th}>Item</th><th style={th}>Reason</th><th style={{ ...th, textAlign: 'right' }}>Qty</th><th style={{ ...th, textAlign: 'right' }}>Cost each</th></tr>
           </thead>
           <tbody>
             {recent.map((r) => (

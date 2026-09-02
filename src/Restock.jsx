@@ -23,7 +23,7 @@ export default function Restock() {
 
   function addLine() {
     const p = products.find((x) => x.id === productId)
-    if (!p) { setMsg('Pick a bottle first.'); setMsgType('error'); return }
+    if (!p) { setMsg('Pick an item first.'); setMsgType('error'); return }
     const q = Number(qty), c = Number(cost)
     if (!q || q < 1) { setMsg('Quantity must be 1 or more.'); setMsgType('error'); return }
     if (!c || c <= 0) { setMsg('Enter the total cost you paid.'); setMsgType('error'); return }
@@ -64,7 +64,7 @@ export default function Restock() {
     <div style={{ maxWidth: 680 }}>
       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, margin: '0 0 0.3rem' }}>Restock</h2>
       <p style={{ color: COLORS.muted, marginTop: 0, marginBottom: '1.5rem' }}>
-        Record a delivery. Enter the quantity received and the total you paid — the cost per bottle is worked out for you.
+        Record a delivery. Enter the quantity received and the total you paid — the cost per unit is worked out for you.
       </p>
 
       <input value={supplier} onChange={(e) => setSupplier(e.target.value)}
@@ -72,7 +72,7 @@ export default function Restock() {
 
       <div style={{ display: 'flex', gap: 10, marginBottom: '1rem', flexWrap: 'wrap' }}>
         <select value={productId} onChange={(e) => setProductId(e.target.value)} style={{ ...field, flex: 2, minWidth: 220 }}>
-          <option value="">Select a bottle…</option>
+          <option value="">Select an item…</option>
           {products.map((p) => (
             <option key={p.id} value={p.id}>{p.name} ({p.qty_on_hand} in stock)</option>
           ))}

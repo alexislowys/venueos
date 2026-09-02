@@ -19,7 +19,7 @@ export default function Manage() {
   return (
     <div>
       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, margin: '0 0 0.3rem' }}>Manage</h2>
-      <p style={{ color: COLORS.muted, marginTop: 0, marginBottom: '1.25rem' }}>Add and edit your drinks menu and your bottle inventory.</p>
+      <p style={{ color: COLORS.muted, marginTop: 0, marginBottom: '1.25rem' }}>Add and edit your menu and your inventory.</p>
       <div style={{ display: 'flex', gap: 10, marginBottom: '1.5rem' }}>
         {tabBtn('menu', 'Menu (drinks)')}
         {tabBtn('products', 'Bottles (inventory)')}

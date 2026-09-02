@@ -20,10 +20,10 @@ export default function Stock() {
   return (
     <div>
       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, margin: '0 0 0.3rem' }}>Stock</h2>
-      <p style={{ color: COLORS.muted, marginTop: 0, marginBottom: '1.25rem' }}>Everything that changes how many bottles you have on hand.</p>
+      <p style={{ color: COLORS.muted, marginTop: 0, marginBottom: '1.25rem' }}>Everything that changes how much stock you have on hand.</p>
       <div style={{ display: 'flex', gap: 10, marginBottom: '1.75rem' }}>
         {tabBtn('in', 'Deliveries in')}
-        {tabBtn('out', 'Bottles finished')}
+        {tabBtn('out', 'Stock used')}
         {tabBtn('reorder', 'To reorder')}
       </div>
       {tab === 'in' && <Restock />}

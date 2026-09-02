@@ -75,8 +75,8 @@ export default function ProductManager() {
     <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-start' }}>
       {/* form */}
       <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 14, padding: '1.2rem', width: 320 }}>
-        <div style={{ fontWeight: 600, marginBottom: 14 }}>{editingId ? 'Edit bottle' : 'Add a bottle'}</div>
-        <input value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Name (e.g. Clase Azul Reposado)" style={field} />
+        <div style={{ fontWeight: 600, marginBottom: 14 }}>{editingId ? 'Edit item' : 'Add an item'}</div>
+        <input value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Name" style={field} />
         <input value={form.brand} onChange={(e) => set('brand', e.target.value)} placeholder="Brand (optional)" style={field} />
         <select value={form.category} onChange={(e) => set('category', e.target.value)} style={field}>
           <option value="">Category…</option>
@@ -85,9 +85,9 @@ export default function ProductManager() {
         <label style={{ color: COLORS.muted, fontSize: 13 }}>Low-stock alert at
           <input type="number" min="0" value={form.reorder_level} onChange={(e) => set('reorder_level', e.target.value)} style={{ ...field, marginTop: 4 }} />
         </label>
-        <p style={{ color: COLORS.muted, fontSize: 12, marginTop: 0 }}>Stock &amp; cost aren't set here — add bottles and their price in <strong>Restock</strong>.</p>
+        <p style={{ color: COLORS.muted, fontSize: 12, marginTop: 0 }}>Stock &amp; cost aren't set here — add stock and its cost in <strong>Restock</strong>.</p>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={save} style={btnGold}>{editingId ? 'Save changes' : 'Add bottle'}</button>
+          <button onClick={save} style={btnGold}>{editingId ? 'Save changes' : 'Add item'}</button>
           {editingId && <button onClick={startNew} style={{ ...smallBtn, marginLeft: 0 }}>Cancel</button>}
         </div>
         {msg && <p style={{ marginTop: '1rem', marginBottom: 0, color: msgType === 'error' ? COLORS.red : COLORS.green }}>{msg}</p>}
