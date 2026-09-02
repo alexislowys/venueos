@@ -10,6 +10,7 @@ import Bookings from './Bookings'
 import Manage from './Manage'
 import Reports from './Reports'
 import Receipts from './Receipts'
+import Tabs from './Tabs'
 import Staff from './Staff'
 import Icon from './icons'
 import { BUSINESS_NAME } from './config'
@@ -18,6 +19,7 @@ const NAV = [
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'bookings', label: 'Bookings' },
   { key: 'sale', label: 'Record Sale' },
+  { key: 'tabs', label: 'Tabs' },
   { key: 'receipts', label: 'Receipts' },
   { key: 'stock', label: 'Stock' },
   { key: 'expense', label: 'Expenses' },
@@ -28,7 +30,7 @@ const NAV = [
 
 // screens a non-owner (staff) is allowed to open
 // (receipts is safe: database only shows staff their own sales)
-const STAFF_PAGES = new Set(['sale', 'receipts', 'stock', 'bookings', 'expense'])
+const STAFF_PAGES = new Set(['sale', 'tabs', 'receipts', 'stock', 'bookings', 'expense'])
 
 function useIsMobile() {
   const [m, setM] = useState(typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches)
@@ -107,6 +109,7 @@ export default function App() {
     stock: <Stock />,
     expense: <LogExpense />,
     receipts: <Receipts />,
+    tabs: <Tabs />,
     reports: <Reports />,
     manage: <Manage />,
     staff: <Staff />,
