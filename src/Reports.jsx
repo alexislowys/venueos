@@ -106,8 +106,14 @@ export default function Reports() {
   async function cashflow() {
     const { data } = await supabase.from('cash_ledger')
       .select('at, kind, amount').gte('at', fromISO()).lte('at', toISO()).order('at')
-    const rows = (data || []).map((r) => [iso(r.at), r.kind, r.amount])
-    downloadCSV('cash-flow', ['Date', 'Type', 'Amount (Rp, + in / − out)'], rows)
+    const label = { sale: 'Sale', expense: 'Expense', purchase: 'Restock', capital: 'Capital' }
+    let running = 0
+    const rows = (data || []).map((r) => {
+      const amt = Number(r.amount)
+      running += amt
+      return [iso(r.at), label[r.kind] || r.kind, amt > 0 ? amt : '', amt < 0 ? -amt : '', running]
+    })
+    downloadCSV('cash-flow', ['Date', 'Type', 'Money in (Rp)', 'Money out (Rp)', 'Balance (Rp)'], rows)
     return rows.length
   }
 
