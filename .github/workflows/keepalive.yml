@@ -1,0 +1,38 @@
+name: Supabase keepalive
+
+# Supabase free tier pauses a project after 7 days without API activity.
+# Ping both projects twice a week so neither ever goes idle.
+# Keys below are publishable (anon) keys — public by design, shipped in the frontend bundle.
+
+on:
+  schedule:
+    - cron: "0 9 * * 1,4" # Mon + Thu 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: demo (viwpwyopgmlaoggpwxrh)
+            url: https://viwpwyopgmlaoggpwxrh.supabase.co
+            key: sb_publishable_suky7hxJRAzmaIrH0N1Wsw_Cq_3jiY7
+          - name: dev (ikprczoxjiuxqoewodfp)
+            url: https://ikprczoxjiuxqoewodfp.supabase.co
+            key: sb_publishable_-v22os6JV2hKianAJdileQ_0u7yGQTh
+    steps:
+      - name: Ping ${{ matrix.name }}
+        run: |
+          set -e
+          # Auth health check — proves the project is up.
+          curl -sf --max-time 30 "${{ matrix.url }}/auth/v1/health" \
+            -H "apikey: ${{ matrix.key }}"
+          echo
+          # REST query — registers real API activity against the database.
+          # RLS may return an empty result for anon; the request still counts.
+          curl -s --max-time 30 -o /dev/null -w "REST HTTP %{http_code}\n" \
+            "${{ matrix.url }}/rest/v1/products?select=id&limit=1" \
+            -H "apikey: ${{ matrix.key }}" \
+            -H "Authorization: Bearer ${{ matrix.key }}"
