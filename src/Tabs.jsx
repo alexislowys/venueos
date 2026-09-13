@@ -17,6 +17,7 @@ export default function Tabs() {
   const [openId, setOpenId] = useState(null)      // tab being viewed
   const [newLabel, setNewLabel] = useState('')
   const [cat, setCat] = useState(null)
+  const [q, setQ] = useState('')
   const [method, setMethod] = useState('cash')
   const [cashReceived, setCashReceived] = useState('')
   const [msg, setMsg] = useState('')
@@ -42,7 +43,11 @@ export default function Tabs() {
     const { data } = await supabase.from('menu_items').select('id, name, category, price').eq('is_active', true).order('name')
     setMenu(data || [])
   }
-  useEffect(() => { load(); loadMenu() }, [])
+  useEffect(() => {
+    load(); loadMenu()
+    const t = setInterval(load, 6000) // near-realtime: pick up other staff's changes
+    return () => clearInterval(t)
+  }, [])
 
   const current = tabs.find((t) => t.id === openId)
   const curItems = itemsByTab[openId] || []
@@ -111,10 +116,12 @@ export default function Tabs() {
 
         {/* add items */}
         <div style={{ marginBottom: '1.5rem' }}>
-          {cat && <button onClick={() => setCat(null)} style={{ background: 'none', border: 'none', color: COLORS.muted, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, padding: 0, marginBottom: 10 }}>← {cap(cat)}</button>}
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search the menu…" style={{ ...field, width: '100%', boxSizing: 'border-box', marginBottom: 12 }} />
+          {!q && cat && <button onClick={() => setCat(null)} style={{ background: 'none', border: 'none', color: COLORS.muted, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, padding: 0, marginBottom: 10 }}>← {cap(cat)}</button>}
           <div style={grid}>
-            {!cat && categories.map((c) => pill(cap(c), () => setCat(c)))}
-            {cat && catItems.map((m) => pill(m.name, () => addItem(m), rp(m.price)))}
+            {q
+              ? menu.filter((m) => m.name.toLowerCase().includes(q.toLowerCase())).map((m) => pill(m.name, () => addItem(m), rp(m.price)))
+              : (!cat ? categories.map((c) => pill(cap(c), () => setCat(c))) : catItems.map((m) => pill(m.name, () => addItem(m), rp(m.price))))}
           </div>
         </div>
 

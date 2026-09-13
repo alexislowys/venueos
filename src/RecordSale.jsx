@@ -14,6 +14,7 @@ export default function RecordSale() {
   const [menu, setMenu] = useState([])
   const [cat, setCat] = useState(null)   // step 1: top category (cocktail/bottle/…)
   const [sub, setSub] = useState(null)   // step 2: liquor type (only for bottles)
+  const [q, setQ] = useState('')         // search across the whole menu
   const [cart, setCart] = useState([])
   const [method, setMethod] = useState('cash')
   const [cashReceived, setCashReceived] = useState('')
@@ -120,25 +121,34 @@ export default function RecordSale() {
 
       {/* ---- Picker (drill-down) ---- */}
       <div style={{ marginBottom: '1.5rem' }}>
-        {cat && (
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search the menu…" style={{ ...field, width: '100%', marginBottom: 14 }} />
+
+        {q && (
+          <div style={grid}>
+            {menu.filter((m) => m.name.toLowerCase().includes(q.toLowerCase())).map((m) => pill(m.name, () => addToCart(m), rp(m.price)))}
+            {menu.filter((m) => m.name.toLowerCase().includes(q.toLowerCase())).length === 0 && <p style={{ color: COLORS.muted }}>No match.</p>}
+          </div>
+        )}
+
+        {!q && cat && (
           <button style={backBtn} onClick={() => (sub ? setSub(null) : setCat(null))}>
             ← {sub ? `${cap(cat)} / ${cap(sub)}` : cap(cat)}
           </button>
         )}
 
-        {!cat && (
+        {!q && !cat && (
           <div style={grid}>
             {categories.map((c) => pill(cap(c), () => { setCat(c); setSub(null) }))}
           </div>
         )}
 
-        {cat && hasSubs && !sub && (
+        {!q && cat && hasSubs && !sub && (
           <div style={grid}>
             {subs.map((s) => pill(cap(s), () => setSub(s)))}
           </div>
         )}
 
-        {cat && (!hasSubs || sub) && (
+        {!q && cat && (!hasSubs || sub) && (
           <div style={grid}>
             {items.map((m) => pill(m.name, () => addToCart(m), rp(m.price)))}
             {items.length === 0 && <p style={{ color: COLORS.muted }}>Nothing here yet.</p>}

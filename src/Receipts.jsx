@@ -77,6 +77,14 @@ export default function Receipts() {
     ].filter((l) => l !== null).join('\n')
   }
 
+  function printReceipt(s) {
+    const w = window.open('', '_blank', 'width=320,height=640')
+    if (!w) { setCopied('blocked-' + s.id); setTimeout(() => setCopied(''), 2500); return }
+    const body = receiptText(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    w.document.write(`<html><head><title>Receipt</title><style>body{font:12px/1.5 ui-monospace,Menlo,monospace;padding:8px;white-space:pre-wrap}@media print{@page{margin:6mm}}</style></head><body>${body}</body></html>`)
+    w.document.close(); w.focus(); w.print()
+  }
+
   async function copyReceipt(s) {
     await navigator.clipboard.writeText(receiptText(s))
     setCopied(s.id)
@@ -140,6 +148,9 @@ export default function Receipts() {
                 }}>{receiptText(s)}</pre>
                 <button onClick={() => copyReceipt(s)} style={{ ...smallBtn, color: copied === s.id ? COLORS.green : COLORS.muted }}>
                   {copied === s.id ? '✓ Copied' : 'Copy receipt'}
+                </button>
+                <button onClick={() => printReceipt(s)} style={{ ...smallBtn, marginLeft: 8, color: copied === 'blocked-' + s.id ? COLORS.red : COLORS.muted }}>
+                  {copied === 'blocked-' + s.id ? 'Allow pop-ups' : 'Print'}
                 </button>
               </div>
             )}

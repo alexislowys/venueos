@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { humanError } from './errors'
-import { COLORS } from './theme'
+import { COLORS, rp } from './theme'
 
 const iso = (s) => new Date(s).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 
@@ -28,6 +28,50 @@ export default function Reports() {
 
   const fromISO = () => new Date(`${from}T00:00:00`).toISOString()
   const toISO = () => new Date(`${to}T23:59:59`).toISOString()
+
+  // ---- on-screen analytics for the selected range ----
+  const [summary, setSummary] = useState(null)
+  useEffect(() => {
+    let live = true
+    async function loadSummary() {
+      const { data: sales } = await supabase.from('sales')
+        .select('id, total_amount, total_revenue, sold_at, staff_id, profiles(name)')
+        .gte('sold_at', fromISO()).lte('sold_at', toISO())
+      const s = sales || []
+      const amount = (r) => Number(r.total_amount || r.total_revenue || 0)
+      const total = s.reduce((a, r) => a + amount(r), 0)
+      const count = s.length
+      // sales by staff
+      const staff = {}
+      for (const r of s) { const k = r.profiles?.name || '—'; staff[k] = (staff[k] || 0) + amount(r) }
+      // busiest hour
+      const hours = {}
+      for (const r of s) { const h = new Date(r.sold_at).getHours(); hours[h] = (hours[h] || 0) + amount(r) }
+      const busiest = Object.entries(hours).sort((a, b) => b[1] - a[1])[0]
+      // top sellers
+      const ids = s.map((r) => r.id)
+      let top = []
+      if (ids.length) {
+        const { data: items } = await supabase.from('sale_items')
+          .select('qty, unit_price, menu_items(name)').in('sale_id', ids)
+        const agg = {}
+        for (const it of items || []) {
+          const n = it.menu_items?.name || 'Item'
+          agg[n] ||= { name: n, qty: 0, revenue: 0 }
+          agg[n].qty += it.qty; agg[n].revenue += it.qty * Number(it.unit_price)
+        }
+        top = Object.values(agg).sort((a, b) => b.revenue - a.revenue).slice(0, 5)
+      }
+      if (live) setSummary({
+        total, count, avg: count ? total / count : 0,
+        staff: Object.entries(staff).map(([name, v]) => ({ name, v })).sort((a, b) => b.v - a.v),
+        busiest: busiest ? { hour: busiest[0], v: busiest[1] } : null,
+        top,
+      })
+    }
+    setSummary(null); loadSummary()
+    return () => { live = false }
+  }, [from, to])
 
   async function run(key, fn) {
     setBusy(key); setMsg('')
@@ -117,6 +161,41 @@ export default function Reports() {
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} style={{ ...field, display: 'block', marginTop: 4 }} />
         </label>
       </div>
+
+      {/* on-screen analytics */}
+      {summary && (
+        <div style={{ marginBottom: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14, marginBottom: 16 }}>
+            {[['Revenue', rp(summary.total)], ['Sales', summary.count], ['Avg check', rp(Math.round(summary.avg))],
+              ['Busiest hour', summary.busiest ? `${String(summary.busiest.hour).padStart(2, '0')}:00` : '—']].map(([label, val]) => (
+              <div key={label} style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 14, padding: '1rem 1.2rem' }}>
+                <div style={{ fontSize: 11, letterSpacing: '0.07em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>{label}</div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: COLORS.gold }}>{val}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+            <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 14, padding: '1rem 1.2rem' }}>
+              <div style={{ fontWeight: 600, marginBottom: 10 }}>Top sellers</div>
+              {summary.top.length === 0 && <div style={{ color: COLORS.muted, fontSize: 13 }}>No sales in range.</div>}
+              {summary.top.map((t) => (
+                <div key={t.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 14 }}>
+                  <span>{t.name} <span style={{ color: COLORS.muted }}>×{t.qty}</span></span><span style={{ color: COLORS.gold }}>{rp(t.revenue)}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: COLORS.card, border: `1px solid ${COLORS.cardBorder}`, borderRadius: 14, padding: '1rem 1.2rem' }}>
+              <div style={{ fontWeight: 600, marginBottom: 10 }}>Sales by staff</div>
+              {summary.staff.length === 0 && <div style={{ color: COLORS.muted, fontSize: 13 }}>No sales in range.</div>}
+              {summary.staff.map((s) => (
+                <div key={s.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: 14 }}>
+                  <span>{s.name}</span><span style={{ color: COLORS.gold }}>{rp(s.v)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* report cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
