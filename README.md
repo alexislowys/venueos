@@ -39,7 +39,7 @@ Access control is enforced **in the database**, not just the UI — every table 
 | | Staff | Owner |
 |---|---|---|
 | Record sales / restocks / bookings | ✓ (own, attributed) | ✓ |
-| See revenue, costs, reports, capital | ✗ | ✓ |
+| See revenue, reports, capital | ✗ | ✓ |
 | Edit menu, products, staff | ✗ | ✓ |
 | Falsify attendance times | ✗ (immutable by trigger) | ✗ |
 | Deactivated account, direct API | ✗ (`is_active()` in every policy) | — |
