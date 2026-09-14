@@ -11,6 +11,8 @@
 -- ═══════════════════════════════════════════════════════════════
 
 truncate table
+  tab_items,
+  tabs,
   sale_items,
   sales,
   bottle_depletions,
@@ -18,6 +20,7 @@ truncate table
   expenses,
   capital_injections,
   bookings,
+  attendance,
   menu_items,
   products
 restart identity cascade;

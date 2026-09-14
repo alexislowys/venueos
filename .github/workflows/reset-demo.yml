@@ -1,0 +1,57 @@
+name: Reset demo data
+
+# The one-click demo signs visitors in as the owner, so anyone can gut the
+# data (or demote the demo account) and the next visitor inherits the mess.
+# A nightly reset re-applies hardening, wipes business data, and reseeds —
+# the seed's profile upsert also restores the owner's role/active flag,
+# and dates regenerate relative to "now" so the dashboard never looks stale.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   DEMO_DATABASE_URL  — Supabase connection string (Database → Connect,
+#                        URI, session pooler)
+#   DEMO_OWNER_UID     — auth UID of the demo owner user
+# Optional (restores the demo password if a visitor changed it):
+#   SUPABASE_SERVICE_ROLE_KEY
+#   DEMO_PASSWORD
+on:
+  schedule:
+    - cron: "0 17 * * *" # daily 17:00 UTC = midnight WIB
+  workflow_dispatch:
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reset and reseed
+        env:
+          DB_URL: ${{ secrets.DEMO_DATABASE_URL }}
+          OWNER_UID: ${{ secrets.DEMO_OWNER_UID }}
+        run: |
+          if [ -z "$DB_URL" ] || [ -z "$OWNER_UID" ]; then
+            echo "::error::set DEMO_DATABASE_URL and DEMO_OWNER_UID repo secrets"
+            exit 1
+          fi
+          sed "s/PASTE_OWNER_UID_HERE/$OWNER_UID/g" db/demo-seed.sql > /tmp/seed.sql
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/harden.sql
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/reset.sql
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f /tmp/seed.sql
+
+      - name: Restore demo password
+        env:
+          SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OWNER_UID: ${{ secrets.DEMO_OWNER_UID }}
+          DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
+        run: |
+          if [ -z "$SERVICE_KEY" ] || [ -z "$DEMO_PASSWORD" ]; then
+            echo "service-key secrets not set — skipping password restore"
+            exit 0
+          fi
+          curl -fsS -X PUT \
+            "https://ikprczoxjiuxqoewodfp.supabase.co/auth/v1/admin/users/$OWNER_UID" \
+            -H "apikey: $SERVICE_KEY" \
+            -H "Authorization: Bearer $SERVICE_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"password\": \"$DEMO_PASSWORD\"}" > /dev/null
+          echo "demo password restored"

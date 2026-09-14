@@ -7,16 +7,20 @@
 
 begin;
 
--- people
+-- people — upsert so a nightly reseed also restores the demo owner's role
+-- and active flag if a visitor demoted or deactivated the account
 insert into public.profiles (id, name, role, email) values
-  ('PASTE_OWNER_UID_HERE', 'Alex (Demo Owner)', 'owner', 'demo@bar.app');
+  ('PASTE_OWNER_UID_HERE', 'Alex (Demo Owner)', 'owner', 'demo@bar.app')
+on conflict (id) do update set name = excluded.name, role = 'owner', active = true;
 insert into public.profiles (id, name, role, email) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'Budi', 'staff', 'budi@bar.app'),
-  ('aaaaaaaa-0000-0000-0000-000000000002', 'Sinta', 'staff', 'sinta@bar.app');
+  ('aaaaaaaa-0000-0000-0000-000000000002', 'Sinta', 'staff', 'sinta@bar.app')
+on conflict (id) do update set name = excluded.name, role = 'staff', active = true;
 
--- opening capital
+-- opening capital — must exceed the ~636.5M of initial stock below, or the
+-- dashboard greets every visitor with negative cash on hand
 insert into public.capital_injections (staff_id, amount, note, injected_at) values
-  ('PASTE_OWNER_UID_HERE', 150000000, 'Opening capital', now() - interval '95 days');
+  ('PASTE_OWNER_UID_HERE', 800000000, 'Opening capital', now() - interval '95 days');
 
 -- bottles on the shelf
 insert into public.products (name, brand, category, volume_ml, reorder_level) values
