@@ -16,7 +16,9 @@ create table if not exists public.tab_items (
   created_at timestamptz not null default now()
 );
 create index if not exists tab_items_tab_idx on public.tab_items (tab_id);
-alter table public.tabs add constraint tab_label_len check (char_length(label) <= 60) not valid;
+do $$ begin
+  alter table public.tabs add constraint tab_label_len check (char_length(label) <= 60) not valid;
+exception when duplicate_object then null; end $$;
 
 create or replace function public.fill_tab_item()
 returns trigger language plpgsql security definer set search_path=public as $$

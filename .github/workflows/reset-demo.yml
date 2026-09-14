@@ -34,6 +34,7 @@ jobs:
             exit 1
           fi
           sed "s/PASTE_OWNER_UID_HERE/$OWNER_UID/g" db/demo-seed.sql > /tmp/seed.sql
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/add-tabs.sql
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/harden.sql
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/reset.sql
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f /tmp/seed.sql
