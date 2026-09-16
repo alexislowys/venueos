@@ -42,8 +42,11 @@ jobs:
           sed "s/PASTE_OWNER_UID_HERE/$OWNER_UID/g" db/demo-prune-accounts.sql > /tmp/prune.sql
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/add-tabs.sql
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/harden.sql
-          psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/reset.sql
+          # prune before the truncate: if pruning fails (e.g. the connection
+          # string lacks the postgres role), the demo keeps its current data
+          # instead of being left empty with no seed
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f /tmp/prune.sql
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/reset.sql
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f /tmp/seed.sql
 
       - name: Restore demo password
