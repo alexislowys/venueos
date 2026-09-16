@@ -10,7 +10,9 @@ name: Reset demo data
 #   DEMO_DATABASE_URL  — Supabase connection string (Database → Connect,
 #                        URI, session pooler)
 #   DEMO_OWNER_UID     — auth UID of the demo owner user
-# Optional (restores the demo password if a visitor changed it):
+# Optional (restores the demo password if a visitor changed it). The URL
+# below must be the DEMO project (viwpwyopgmlaoggpwxrh, same as the bundle
+# and keep-demo-awake.yml) — the service key belongs to that project only.
 #   SUPABASE_SERVICE_ROLE_KEY
 #   DEMO_PASSWORD
 on:
@@ -50,7 +52,7 @@ jobs:
             exit 0
           fi
           curl -fsS -X PUT \
-            "https://ikprczoxjiuxqoewodfp.supabase.co/auth/v1/admin/users/$OWNER_UID" \
+            "https://viwpwyopgmlaoggpwxrh.supabase.co/auth/v1/admin/users/$OWNER_UID" \
             -H "apikey: $SERVICE_KEY" \
             -H "Authorization: Bearer $SERVICE_KEY" \
             -H "Content-Type: application/json" \

@@ -36,3 +36,7 @@ agent
 AGENTS.md
 CLAUDE.md
 skills-lock.json
+
+# supabase CLI link state (contains project ref)
+supabase/.temp/
+!.env.example
