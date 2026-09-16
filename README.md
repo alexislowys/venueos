@@ -76,3 +76,7 @@ Database: run [`db/demo-schema.sql`](db/demo-schema.sql) on a fresh Supabase pro
 - Built solo as a learning project with AI-assisted development; every architectural decision, security policy and iteration reviewed and understood by me
 - History starts at "already working" because the project outgrew its first throwaway repo — the [`db/`](db) folder documents the schema's full evolution
 - Known gaps I'd tackle next: kitchen display (KDS), recipe/ingredient inventory + food-cost %, void/refund with audit trail, offline queue
+
+## License
+
+MIT © 2026 Alexis Low. See [LICENSE](LICENSE).

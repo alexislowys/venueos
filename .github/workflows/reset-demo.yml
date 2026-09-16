@@ -2,7 +2,8 @@ name: Reset demo data
 
 # The one-click demo signs visitors in as the owner, so anyone can gut the
 # data (or demote the demo account) and the next visitor inherits the mess.
-# A nightly reset re-applies hardening, wipes business data, and reseeds —
+# A six-hourly reset re-applies hardening, wipes business data, prunes any
+# logins a visitor minted through create-staff, and reseeds —
 # the seed's profile upsert also restores the owner's role/active flag,
 # and dates regenerate relative to "now" so the dashboard never looks stale.
 #
@@ -10,14 +11,16 @@ name: Reset demo data
 #   DEMO_DATABASE_URL  — Supabase connection string (Database → Connect,
 #                        URI, session pooler)
 #   DEMO_OWNER_UID     — auth UID of the demo owner user
-# Optional (restores the demo password if a visitor changed it). The URL
+# Optional (restores the demo login if a visitor changed the password OR
+# email via auth.updateUser — without these two secrets a single visitor
+# can lock every later recruiter out until someone fixes it by hand). The URL
 # below must be the DEMO project (viwpwyopgmlaoggpwxrh, same as the bundle
 # and keep-demo-awake.yml) — the service key belongs to that project only.
 #   SUPABASE_SERVICE_ROLE_KEY
 #   DEMO_PASSWORD
 on:
   schedule:
-    - cron: "0 17 * * *" # daily 17:00 UTC = midnight WIB
+    - cron: "0 */6 * * *" # every 6h — caps how long a visitor's defacement survives
   workflow_dispatch:
 
 jobs:
@@ -36,9 +39,11 @@ jobs:
             exit 1
           fi
           sed "s/PASTE_OWNER_UID_HERE/$OWNER_UID/g" db/demo-seed.sql > /tmp/seed.sql
+          sed "s/PASTE_OWNER_UID_HERE/$OWNER_UID/g" db/demo-prune-accounts.sql > /tmp/prune.sql
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/add-tabs.sql
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/harden.sql
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f db/reset.sql
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f /tmp/prune.sql
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f /tmp/seed.sql
 
       - name: Restore demo password
@@ -56,5 +61,5 @@ jobs:
             -H "apikey: $SERVICE_KEY" \
             -H "Authorization: Bearer $SERVICE_KEY" \
             -H "Content-Type: application/json" \
-            -d "{\"password\": \"$DEMO_PASSWORD\"}" > /dev/null
-          echo "demo password restored"
+            -d "{\"email\": \"demo@bar.app\", \"password\": \"$DEMO_PASSWORD\", \"email_confirm\": true}" > /dev/null
+          echo "demo login restored"
