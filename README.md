@@ -1,8 +1,22 @@
 # VenueOS
 
+[![CI](https://github.com/alexislowys/venueos/actions/workflows/ci.yml/badge.svg)](https://github.com/alexislowys/venueos/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/demo-venueos-000?logo=vercel)](https://venueos-demo.vercel.app)
+
 **Hospitality management platform** — point of sale, inventory, reservations, staff and reporting for bars, restaurants and cafés. Built end-to-end: React frontend, Postgres backend with row-level security, deployed to production.
 
 **▶ Live demo:** [venueos-demo.vercel.app](https://venueos-demo.vercel.app) — click **"View demo (one click)"**, no signup needed. Loaded with 3 months of generated trading data.
+
+**Why:** I built this to learn full-stack development end to end — and specifically to learn how to make the **database** the security boundary, so the app stays correct even when someone bypasses the UI and calls the API directly.
+
+![Reports — revenue, top sellers, sales by staff, CSV exports](docs/reports.png)
+
+<details>
+<summary>More screenshots</summary>
+
+![Point of sale — tap-through menu](docs/pos.png)
+
+</details>
 
 ---
 
@@ -46,6 +60,8 @@ Access control is enforced **in the database**, not just the UI — every table 
 
 Additional hardening: sale prices and bill totals recomputed by triggers (client values ignored), negative-stock guard, booking-capacity trigger, public signups disabled, one-shot attendance closure.
 
+**Tested, not just claimed:** [`db/rls.test.js`](db/rls.test.js) applies the real migrations to an in-process Postgres ([PGlite](https://pglite.dev/)), signs in as owner / staff / deactivated staff / anonymous, and attacks the API directly — reading other staff's sales, self-promoting to owner, changing prices, sending fake totals, backdating, overselling stock, editing closed shifts. Runs in CI on every push, no database server needed.
+
 ## Architecture
 
 ```mermaid
@@ -69,12 +85,11 @@ cp .env.example .env.local   # add your Supabase URL + anon key
 npm run dev
 ```
 
-Database: run [`db/demo-schema.sql`](db/demo-schema.sql) on a fresh Supabase project (tables, triggers, policies), then optionally [`db/demo-seed.sql`](db/demo-seed.sql) for sample data. `npm test` runs the unit tests; CI runs lint + tests + build on every push.
+Database: run [`db/demo-schema.sql`](db/demo-schema.sql) on a fresh Supabase project (tables, triggers, policies), then optionally [`db/demo-seed.sql`](db/demo-seed.sql) for sample data. `npm test` runs the unit tests and the database security suite; CI runs lint + tests + build on every push.
 
 ## Honest notes
 
 - Built solo as a learning project with AI-assisted development; every architectural decision, security policy and iteration reviewed and understood by me
-- History starts at "already working" because the project outgrew its first throwaway repo — the [`db/`](db) folder documents the schema's full evolution
 - Known gaps I'd tackle next: kitchen display (KDS), recipe/ingredient inventory + food-cost %, void/refund with audit trail, offline queue
 
 ## License
