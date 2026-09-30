@@ -105,7 +105,9 @@ begin
     n := 3 + floor(random() * 5)::int
          + case when extract(dow from now() - (d || ' days')::interval) in (5,6) then 4 else 0 end;
     for i in 1..n loop
-      v_when := date_trunc('day', now() - (d || ' days')::interval)
+      -- evenings in the venue's own time zone (WIB), not the DB's UTC
+      v_when := (date_trunc('day', (now() - (d || ' days')::interval) at time zone 'Asia/Jakarta')
+                 at time zone 'Asia/Jakarta')
                 + interval '18 hours' + (random() * interval '6 hours');
       v_staff := case when random() < 0.5
         then 'aaaaaaaa-0000-0000-0000-000000000001'::uuid
@@ -126,6 +128,10 @@ begin
         end if;
         insert into public.sale_items (sale_id, menu_item_id, qty)
         values (v_sale, v_menu, 1 + floor(random() * 2)::int);
+        -- the whole-bottle trigger stamps its depletion with now(); backdate it
+        -- to the sale, or 90 days of bottle COGS land in "this week"
+        update public.bottle_depletions set created_at = v_when
+        where note = 'whole-bottle sale' and created_at = now();
       end loop;
     end loop;
   end loop;
@@ -153,17 +159,17 @@ end $$;
 
 -- upcoming bookings
 insert into public.bookings (customer_name, phone, party_size, starts_at, duration_min, status, note) values
-  ('Rizky',  '+62811922441', 4, date_trunc('day', now()) + interval '1 day 19 hours',   120, 'booked', 'birthday'),
-  ('Maya',   '+62812334455', 2, date_trunc('day', now()) + interval '1 day 20 hours',   120, 'booked', null),
-  ('Kevin',  '+62813556677', 3, date_trunc('day', now()) + interval '2 days 19 hours',  150, 'booked', 'window table'),
-  ('Putri',  '+62815778899', 2, date_trunc('day', now()) + interval '2 days 21 hours',  120, 'booked', null),
-  ('James',  '+62817990011', 5, date_trunc('day', now()) + interval '3 days 20 hours',  180, 'booked', 'bottle service');
+  ('Rizky',  '+62811922441', 4, (date_trunc('day', now() at time zone 'Asia/Jakarta') at time zone 'Asia/Jakarta') + interval '1 day 19 hours',   120, 'booked', 'birthday'),
+  ('Maya',   '+62812334455', 2, (date_trunc('day', now() at time zone 'Asia/Jakarta') at time zone 'Asia/Jakarta') + interval '1 day 20 hours',   120, 'booked', null),
+  ('Kevin',  '+62813556677', 3, (date_trunc('day', now() at time zone 'Asia/Jakarta') at time zone 'Asia/Jakarta') + interval '2 days 19 hours',  150, 'booked', 'window table'),
+  ('Putri',  '+62815778899', 2, (date_trunc('day', now() at time zone 'Asia/Jakarta') at time zone 'Asia/Jakarta') + interval '2 days 21 hours',  120, 'booked', null),
+  ('James',  '+62817990011', 5, (date_trunc('day', now() at time zone 'Asia/Jakarta') at time zone 'Asia/Jakarta') + interval '3 days 20 hours',  180, 'booked', 'bottle service');
 
 -- staff attendance, last 2 weeks
 insert into public.attendance (staff_id, clock_in, clock_out)
 select s.id,
-       date_trunc('day', now() - (d || ' days')::interval) + interval '17 hours' + (random() * interval '30 minutes'),
-       date_trunc('day', now() - (d || ' days')::interval) + interval '25 hours' + (random() * interval '60 minutes')
+       (date_trunc('day', (now() - (d || ' days')::interval) at time zone 'Asia/Jakarta') at time zone 'Asia/Jakarta') + interval '17 hours' + (random() * interval '30 minutes'),
+       (date_trunc('day', (now() - (d || ' days')::interval) at time zone 'Asia/Jakarta') at time zone 'Asia/Jakarta') + interval '25 hours' + (random() * interval '60 minutes')
 from generate_series(1, 14) as d
 cross join (select id from public.profiles where role = 'staff') s
 where d % 7 <> 3;
